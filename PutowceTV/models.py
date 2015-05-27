@@ -35,7 +35,7 @@ class Queue(Base):
 	text_only = Column(Boolean, default=False)
 
 	items = relationship('Item', order_by='Item.position', backref='queue',
-		collection_class=ordering_list('position', count_from=1))
+		collection_class=ordering_list('position'))
 
 	def as_dict(self):
 		return {c.name: getattr(self, c.name) for c in self.__table__.columns}

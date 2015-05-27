@@ -23,7 +23,7 @@ wamp_app = Application('tv.putowce')
 def retrieve():
 	return [dict(chain(q.as_dict().items(),
 		[['items', [i.as_dict() for i in q.items]]]))
-	for q in Queue.query.outerjoin(Item).order_by(Item.position).all()]
+		for q in Queue.query.outerjoin(Item).order_by(Item.position).all()]
 
 
 webapp = Klein()
@@ -96,7 +96,14 @@ def order(request, queue_name):
 		queue = Queue.query.filter(Queue.name==queue_name).one()
 	except NoResultFound:
 		raise NotFound("No matching queue has been found")
-	print([int(pos) for pos in request.args.get('queue[]')])
+	stmt = Item.__table__.update().where(
+		Item.id==bindparam('_id')).values(
+			{'position': bindparam('position')})
+	new_order = [{'_id': int(item_id), 'position': pos}
+		for pos, item_id in enumerate(request.args.get('queue[]'))]
+	db_session.execute(stmt, new_order)
+	db_session.commit()
+	wamp_app.session.publish('tv.putowce.update', retrieve())
 	return json.dumps({'success': True})
 
 

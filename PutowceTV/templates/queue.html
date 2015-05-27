@@ -14,14 +14,15 @@
                 <div id="main">
                     <div id="panel panel-default">
                         <div class="panel-heading" role="tab" id="headingOne">
-                            <h4 class="panel-title">Kolejność wyświetleń</h4>
+                            <h4 class="panel-title">Kolejka "{{ queue.display_name }}"</h4>
                         </div>
                         </br>
                     <div id="sortable1" class="list-group">
                         {% for item in queue.items %}
                         <div id="queue-{{ item.id }}" class="list-group-item">
-                            <a data-toggle="collapse" data-parent="#accordion" href="#collapse{{ item.id }}" aria-expanded="true" aria-controls="collapse2">Item {{ item.id }}</a>
+                            <a data-toggle="collapse" data-parent="#accordion" href="#collapse{{ item.id }}" aria-expanded="true" aria-controls="collapse2">Item #{{ item.id }}</a>
                             <div id="collapse{{ item.id }}" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading{{ item.id }}">
+                                <code>{{ item.as_dict() }}</code>
                                 <table class="table table-bordered table-striped" style="clear: both">
                                 {% if item.type == 'message' %}
                                     <tr>
@@ -34,7 +35,6 @@
                                         <td width="70%"><a href="#" data-type="text" data-pk="{{ item.id }}" data-name="url" data-title="Link" data-placeholder="Required" class="editable editable-click">{{ item.url }}</a></td>
                                     </tr>
                                 {% endif %}
-                                {{ item.as_dict() }}
                                     <tr>
                                         <td width="30%">Wyświetlanie od:</td>
                                         <td width="70%"><a href="#" id="dob" data-type="combodate" data-value="1984-05-15" data-format="YYYY-MM-DD" data-viewformat="DD/MM/YYYY" data-template="D / MMM / YYYY" data-pk="{{ item.id }}" data-title="Select Date of birth" class="editable editable-click" style="display: inline;">15/05/1984</a>
