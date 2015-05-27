@@ -1,0 +1,8 @@
+autobahn[twisted]
+crossbar
+klein
+Jinja2
+pyOpenSSL
+SQLAlchemy
+WTForms
+WTForms-Components
