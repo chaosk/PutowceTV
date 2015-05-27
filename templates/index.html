@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block content %}
+	<div id="wrapper">
+		<div id="main-wrapper" class="col-md-11 pull-right">
+			{% for queue, item_count in queues %}
+				<a href="/q/{{ queue.name }}">{{ queue.name }} ({{ item_count }})</a>
+			{% endfor %}
+		</div>
+	</div>
+{% endblock content %}

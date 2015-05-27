@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block content %}
+	<div id="wrapper">
+		<div id="main-wrapper" class="col-md-11 pull-right">
+{% from "_form.html" import render_field %}
+<form method="POST" action="/a/{{ queue.name }}">
+  <dl>
+    {{ render_field(form.type) }}
+    {{ render_field(form.message) }}
+    {{ render_field(form.url) }}
+    {{ render_field(form.display_time) }}
+    {{ render_field(form.valid_since) }}
+    {{ render_field(form.valid_until) }}
+    {{ render_field(form.display_after) }}
+    {{ render_field(form.display_before) }}
+  </dl>
+  <p><input type="submit" value="Send">
+</form>
+		</div>
+	</div>
+{% endblock content %}
