@@ -1,3 +1,4 @@
+# -*- encoding: utf-8 -*-
 from twisted.internet import reactor
 from twisted.internet.defer import inlineCallbacks
 from autobahn.twisted.wamp import ApplicationSession, ApplicationRunner

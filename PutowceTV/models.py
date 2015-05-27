@@ -1,3 +1,4 @@
+# -*- encoding: utf-8 -*-
 from sqlalchemy import Column, Integer, String, Enum, Boolean
 from sqlalchemy import Text, DateTime, Time, ForeignKey
 from sqlalchemy.orm import relationship
@@ -33,7 +34,7 @@ class Queue(Base):
 	display_name = Column(String(255), index=True, unique=True)
 	text_only = Column(Boolean, default=False)
 
-	items = relationship('Item', order_by='Item.position',
+	items = relationship('Item', order_by='Item.position', backref='queue',
 		collection_class=ordering_list('position', count_from=1))
 
 	def as_dict(self):

@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block content %}
+	<div id="wrapper">
+		<div id="main-wrapper" class="col-md-11 pull-right">
+{% from "_form.html" import render_field %}
+<form method="POST" action="/d/{{ item.id }}">
+<p>Are you sure you want to delete Item #{{ item.id }}?</p>
+  <p><input type="submit" value="Confirm" name="confirm"></p>
+</form>
+		</div>
+	</div>
+{% endblock content %}

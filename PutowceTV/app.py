@@ -1,3 +1,4 @@
+# -*- encoding: utf-8 -*-
 from itertools import chain
 import json
 from autobahn.twisted.wamp import Application
@@ -5,6 +6,7 @@ import jinja2
 from klein import Klein
 from sqlalchemy import func
 from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.sql.expression import bindparam
 from twisted.web.static import File
 from twisted.internet.defer import inlineCallbacks, returnValue
 from werkzeug.datastructures import MultiDict
@@ -12,7 +14,6 @@ from werkzeug.exceptions import NotFound
 from db import db_session
 from forms import ItemForm
 from models import Item, Queue
-from utils import validate_item
 
 
 wamp_app = Application('tv.putowce')
@@ -69,6 +70,24 @@ def add(request, queue_name):
 		return
 	page = webapp.templates.get_template('add.html')
 	return page.render(form=form, queue=queue)
+
+
+@webapp.route('/d/<int:item_id>', methods=['GET', 'POST'])
+def delete(request, item_id):
+	try:
+		item = Item.query.filter(Item.id==item_id).one()
+	except NoResultFound:
+		raise NotFound("No matching item has been found")
+	if request.method == 'POST' and request.args.get('confirm')[0]:
+		queue = item.queue
+		queue.items.remove(item)
+		db_session.delete(item)
+		db_session.commit()
+		wamp_app.session.publish('tv.putowce.update', retrieve())
+		request.redirect("/q/{}".format(queue.name))
+		return
+	page = webapp.templates.get_template('del.html')
+	return page.render(item=item)
 
 
 @webapp.route('/o/<string:queue_name>', methods=['POST'])

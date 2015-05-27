@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+	 <body>
+			<h1>PubSub Basic Frontend</h1>
+			<p>Open JavaScript console to watch output.</p>
+			<script src="https://autobahn.s3.amazonaws.com/autobahnjs/latest/autobahn.min.jgz"></script>
+			<script>
+
+var connection = new autobahn.Connection({
+	url: 'ws://localhost:8080/ws',
+	realm: 'realm1'}
+);
+
+connection.onopen = function (session) {
+
+	session.call('tv.putowce.retrieve').then(function(queues) {
+		queues.forEach(function(queue) {
+			switch (queue.name){
+			case 'messages':
+				data = [];
+				queue.items.forEach(function(item){
+					data.push(item.message);
+				});
+				$('marquee').html(data.join(" | "));
+				break;
+			}
+		});
+	});
+
+	function on_update(queues) {
+		console.log(JSON.stringify(queues));
+	}
+
+	session.subscribe('tv.putowce.update', on_update);
+};
+
+connection.open();
+</script>
+	 </body>
+</html>
