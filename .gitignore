@@ -1,4 +1,4 @@
 *.pyc
 __pycache__
-.crossbar/node.pid
+PutowceTV/.crossbar/node.pid
 *.db
