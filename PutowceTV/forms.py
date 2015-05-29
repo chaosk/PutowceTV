@@ -23,3 +23,18 @@ class ItemForm(Form):
 	valid_until = DateTimeField('Valid until', validators=[validators.optional()])
 	display_after = TimeField('Display after', validators=[validators.optional()])
 	display_before = TimeField('Display before', validators=[validators.optional()])
+
+	def validate_message(form, field):
+		if form.type.data == 'message':
+			if not field.data:
+				raise validators.ValidationError("Message is required")
+		elif field.data:
+			raise validators.ValidationError("Message cannot be set if type is not 'message'")
+
+	def validate_url(form, field):
+		if form.type.data != 'message':
+			if not field.data:
+				raise validators.ValidationError("URL is required")
+			valiators.URL()(form, field)
+		elif field.data:
+			raise validators.ValidationError("URL cannot be set if type is 'message'")

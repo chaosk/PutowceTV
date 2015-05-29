@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+        <meta name="description" content="">
+        <meta name="author" content="Krzysiu i Lorek">
+        <!--<link rel="icon" href="../../favicon.ico"> -->
+
+        <title>Putowce TV</title>
+
+        <!-- Bootstrap-->
+        <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+
+        <!-- Custom styles for this template -->
+        <link href="/static/css/sticky-footer.css" rel="stylesheet">
+        <link href="/static/css/styles.css" rel="stylesheet">
+    </head>
+
+    <body>
+        <nav class="navbar navbar-inverse navbar-fixed-top">
+            <div class="container">
+                <div class="navbar-header">
+                    <a class="navbar-brand" href="#">PUTOWCE TV</a>
+                </div>
+            </div>
+        </nav>
+
+        <div class="container">
+
+            <div class="starter-template">
+                <h1>PUTOWCE TV</h1>
+                <p class="lead">Tu będą się wyświetlać te śmieszne rzeczy typu<br> Obrazki, filmiki ramki do stron w htmlu itd.</p>
+
+            </div>
+
+        </div><!-- /.container -->
+
+        <footer class="footer navbar-inverse">
+            <div>
+                <div class="col-xs-3">                
+                    <canvas id="clock"></canvas>
+                    <script>
+                        var context;
+                        var d;
+                        var str;
+                        function getClock()
+                        {
+
+                            //Get Current Time
+                            d = new Date();
+                            str = prefixZero(d.getHours(), d.getMinutes(), d.getSeconds());
+
+                            //Get the Context 2D or 3D
+                            context = clock.getContext("2d");
+                            context.clearRect(0, 0, 500, 200);
+                            context.font = "60px Arial";
+                            context.fillStyle = "grey";
+                            context.fillText(str, 35, 90);
+
+                        }
+
+                        function prefixZero(hour, min, sec)
+                        {
+                            var curTime;
+                            if(hour < 10)
+                                curTime = "0"+hour.toString();
+                            else
+                                curTime = hour.toString(); 
+
+                            if(min < 10)
+                                curTime += ":0"+min.toString();                           
+                            else
+                                curTime += ":"+min.toString();  
+
+                            if(sec < 10)
+                                curTime += ":0"+sec.toString();                           
+                            else
+                                curTime += ":"+sec.toString();  
+                            return curTime;
+                        }
+
+                        setInterval(getClock, 1000);
+                    </script>
+                </div>
+                <div class="col-xs-9">
+                    <marquee behavior="scroll"> </marquee>
+                </div>
+            </div>
+        </footer>
+        <!-- Bootstrap core JavaScript
+================================================== -->
+        <!-- Placed at the end of the document so the pages load faster -->
+        <script src="/static/js/jquery-1.11.3.min.js"></script>
+        <script src="/static/js/bootstrap.min.js"></script>
+        <script src="/static/js/autobahn.min.js"></script>
+        <script>
+
+var connection = new autobahn.Connection({
+	url: 'ws://localhost:8080/ws',
+	realm: 'realm1'}
+);
+
+connection.onopen = function (session) {
+
+	session.call('tv.putowce.retrieve').then(function(queues) {
+		queues.forEach(function(queue) {
+			switch (queue.name){
+			case 'messages':
+				data = [];
+				queue.items.forEach(function(item){
+					data.push(item.message);
+				});
+				$('marquee').html(data.join(" &bull; "));
+				break;
+			}
+		});
+	});
+
+	function on_update(args) {
+		args[0].forEach(function(queue) {
+			switch (queue.name){
+			case 'messages':
+				data = [];
+				queue.items.forEach(function(item){
+					data.push(item.message);
+				});
+				$('marquee').html(data.join(" &bull; "));
+				break;
+			}
+		});
+	}
+
+	session.subscribe('tv.putowce.update', on_update);
+};
+
+connection.open();
+        </script>
+    </body>
+</html>

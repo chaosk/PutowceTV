@@ -66,10 +66,10 @@ def add(request, queue_name):
 			queue.items.append(item)
 			db_session.commit()
 			wamp_app.session.publish('tv.putowce.update', retrieve())
-		request.redirect("/q/{}".format(queue.name))
-		return
+			request.redirect("/q/{}".format(queue.name))
+			return
 	page = webapp.templates.get_template('add.html')
-	return page.render(form=form, queue=queue)
+	return page.render(form=form, queue=queue, form_action="/a/{}".format(queue.name))
 
 
 @webapp.route('/d/<int:item_id>', methods=['GET', 'POST'])
