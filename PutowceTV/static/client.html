@@ -15,7 +15,7 @@
         <link href="/static/css/bootstrap.min.css" rel="stylesheet">
 
         <!-- Custom styles for this template -->
-        <link href="/static/css/sticky-footer.css" rel="stylesheet">
+        <link href="/static/css/client.css" rel="stylesheet">
         <link href="/static/css/styles.css" rel="stylesheet">
     </head>
 
@@ -40,7 +40,7 @@
 
         <footer class="footer navbar-inverse">
             <div>
-                <div class="col-xs-3">                
+                <div class="col-xs-2">                
                     <canvas id="clock"></canvas>
                     <script>
                         var context;
@@ -55,10 +55,10 @@
 
                             //Get the Context 2D or 3D
                             context = clock.getContext("2d");
-                            context.clearRect(0, 0, 500, 200);
-                            context.font = "60px Arial";
+                            context.clearRect(0, 0, 400, 200);
+                            context.font = "70px Arial";
                             context.fillStyle = "grey";
-                            context.fillText(str, 35, 90);
+                            context.fillText(str, 0, 125);
 
                         }
 

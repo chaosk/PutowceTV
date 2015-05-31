@@ -1,0 +1,26 @@
+marquee {
+    color: grey;
+    margin-top: 25px;
+    font-size: 40px;
+}
+
+html {
+  position: relative;
+  min-height: 100%;
+}
+.footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  height: 100px;
+  /* Set the fixed height of the footer here */
+}
+
+body {
+  /* Margin bottom by footer height */
+  margin-bottom: 60px;
+}
+
+#clock {
+    height: 80px;  
+}

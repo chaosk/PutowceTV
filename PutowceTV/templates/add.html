@@ -1,8 +1,8 @@
 {% extends "base.html" %}
 {% import '_form.html' as macros %}
 {% block content %}
-    <div class="row">
-        <div class="col-xs-12 col-md-3 col-sm-4 col-sm-offset-4 col-md-offset-4 col-lg-3 col-lg-offset-4">
+    <div class="container">
+        <div class="col-md-4 col-sm-4 col-sm-offset-4 col-md-offset-4 col-lg-3 col-lg-offset-4">
             {% call macros.render_form(form, action_url=form_action, action_text='Submit',
                                         class_='form-horizontal') %}
                 {% if not queue.text_only %}
