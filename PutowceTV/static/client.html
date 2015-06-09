@@ -85,7 +85,7 @@
                     </script>
                 </div>
                 <div class="col-xs-9">
-                    <marquee behavior="scroll"> </marquee>
+                    <div class="marquee"></div>
                 </div>
             </div>
         </footer>
@@ -95,47 +95,61 @@
         <script src="/static/js/jquery-1.11.3.min.js"></script>
         <script src="/static/js/bootstrap.min.js"></script>
         <script src="/static/js/autobahn.min.js"></script>
+        <script src="/static/js/jquery.marquee.min.js"></script>
         <script>
 
-var connection = new autobahn.Connection({
-	url: 'ws://localhost:8080/ws',
-	realm: 'realm1'}
-);
+            var connection = new autobahn.Connection({
+                url: 'ws://localhost:8080/ws',
+                realm: 'realm1'}
+                                                    );
 
-connection.onopen = function (session) {
+            connection.onopen = function (session) {
 
-	session.call('tv.putowce.retrieve').then(function(queues) {
-		queues.forEach(function(queue) {
-			switch (queue.name){
-			case 'messages':
-				data = [];
-				queue.items.forEach(function(item){
-					data.push(item.message);
-				});
-				$('marquee').html(data.join(" &bull; "));
-				break;
-			}
-		});
-	});
+                session.call('tv.putowce.retrieve').then(function(queues) {
+                    queues.forEach(function(queue) {
+                        switch (queue.name){
+                            case 'messages':
+                                data = [];
+                                queue.items.forEach(function(item){
+                                    data.push(item.message);
+                                });
+                                $('.marquee').html(data.join(" &bull; "));
+                                break;
+                        }
+                    });
+                });
 
-	function on_update(args) {
-		args[0].forEach(function(queue) {
-			switch (queue.name){
-			case 'messages':
-				data = [];
-				queue.items.forEach(function(item){
-					data.push(item.message);
-				});
-				$('marquee').html(data.join(" &bull; "));
-				break;
-			}
-		});
-	}
+                function on_update(args) {
+                    args[0].forEach(function(queue) {
+                        switch (queue.name){
+                            case 'messages':
+                                data = [];
+                                queue.items.forEach(function(item){
+                                    data.push(item.message);
+                                });
+                                $('.marquee').html(data.join(" &bull; "));
+                                break;
+                        }
+                    });
+                    
+                }
 
-	session.subscribe('tv.putowce.update', on_update);
-};
+                session.subscribe('tv.putowce.update', on_update);
+                $('.marquee').marquee({
+                    //speed in milliseconds of the marquee
+                    duration: 5000,
+                    //gap in pixels between the tickers
+                    gap: 50,
+                    //time in milliseconds before the marquee will start animating
+                    delayBeforeStart: 1000,
+                    //'left' or 'right'
+                    direction: 'left',
+                    //true or false - should the marquee be duplicated to show an effect of continues flow
+                    duplicated: true
+                });
+            };
 
-connection.open();
+            connection.open();
         </script>
     </body>
 </html>

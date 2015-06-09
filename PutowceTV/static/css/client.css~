@@ -1,7 +1,10 @@
-marquee {
+.marquee {
     color: grey;
     margin-top: 25px;
-    font-size: 40px;
+    font-size: 
+  width: 300px;
+  overflow: hidden;
+}
 }
 
 html {
@@ -25,7 +28,7 @@ body {
     height: 80px;  
 }
 img {
-max-height: 500px;
- margin-left: auto;
+    max-height: 500px;
+    margin-left: auto;
     margin-right: auto;
 }
