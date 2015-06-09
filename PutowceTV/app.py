@@ -14,6 +14,7 @@ from werkzeug.exceptions import NotFound
 from db import db_session
 from forms import ItemForm
 from models import Item, Queue
+import config
 
 
 wamp_app = Application('tv.putowce')
@@ -107,6 +108,12 @@ def order(request, queue_name):
 	return json.dumps({'success': True})
 
 
+@webapp.route('/client/')
+def client(request):
+	page = webapp.templates.get_template('client.html')
+	return page.render(conn_data=config.AUTOBAHN_PARAMS)
+
+
 @webapp.route('/static/', branch=True)
 def static(request):
 	return File('./static')
@@ -119,5 +126,5 @@ if __name__ == "__main__":
 	from twisted.internet import reactor
 	log.startLogging(sys.stdout)
 
-	reactor.listenTCP(8000, Site(webapp.resource()))
-	wamp_app.run("ws://localhost:8080/ws", "realm1")
+	reactor.listenTCP(config.KLEIN_PORT, Site(webapp.resource()))
+	wamp_app.run(**config.AUTOBAHN_PARAMS)

@@ -1,8 +1,7 @@
 .marquee {
     color: grey;
     margin-top: 25px;
-    font-size: 
-    width: 300px;
+    font-size: 40px;
     overflow: hidden;
 }
 

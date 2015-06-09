@@ -31,7 +31,7 @@
         <div class="container">
 
             <div class="starter-template">
-                <img src="http://i.ytimg.com/vi/tntOCGkgt98/maxresdefault.jpg">
+                tudynks
 
             </div>
 
@@ -84,8 +84,8 @@
                         setInterval(getClock, 1000);
                     </script>
                 </div>
-                <div class="col-xs-9">
-                    <marquee behavior="scroll"> </marquee>
+                <div class="col-xs-10">
+                    <div class="marquee"></div>
                 </div>
             </div>
         </footer>
@@ -95,47 +95,43 @@
         <script src="/static/js/jquery-1.11.3.min.js"></script>
         <script src="/static/js/bootstrap.min.js"></script>
         <script src="/static/js/autobahn.min.js"></script>
+        <script src="/static/js/jquery.marquee.min.js"></script>
         <script>
+            $(function() {
 
-var connection = new autobahn.Connection({
-	url: 'ws://localhost:8080/ws',
-	realm: 'realm1'}
-);
+                var connection = new autobahn.Connection({
+                    url: "{{ conn_data.url }}",
+                    realm: "{{ conn_data.realm }}"});
 
-connection.onopen = function (session) {
+                connection.onopen = function (session) {
 
-	session.call('tv.putowce.retrieve').then(function(queues) {
-		queues.forEach(function(queue) {
-			switch (queue.name){
-			case 'messages':
-				data = [];
-				queue.items.forEach(function(item){
-					data.push(item.message);
-				});
-				$('marquee').html(data.join(" &bull; "));
-				break;
-			}
-		});
-	});
+                    session.call('tv.putowce.retrieve').then(update);
 
-	function on_update(args) {
-		args[0].forEach(function(queue) {
-			switch (queue.name){
-			case 'messages':
-				data = [];
-				queue.items.forEach(function(item){
-					data.push(item.message);
-				});
-				$('marquee').html(data.join(" &bull; "));
-				break;
-			}
-		});
-	}
+                    function update(queues) {
+                        queues.forEach(function(queue) {
+                            switch (queue.name){
+                                case 'messages':
+                                    data = [];
+                                    queue.items.forEach(function(item){
+                                        data.push(item.message);
+                                    });
+                                    $('.marquee').html(data.join(" &bull; "))
+                                    .marquee({duration: 5000, gap: 100, duplicated: true});
+                                    break;
+                            }
+                        });
+                    }
 
-	session.subscribe('tv.putowce.update', on_update);
-};
+                    function on_update(args) {
+                        update(args[0]);
+                    }
 
-connection.open();
+                    session.subscribe('tv.putowce.update', on_update);
+                };
+
+                connection.open();
+
+            });
         </script>
     </body>
 </html>
