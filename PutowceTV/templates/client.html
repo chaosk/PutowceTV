@@ -116,7 +116,7 @@
                                         data.push(item.message);
                                     });
                                     $('.marquee').html(data.join(" &bull; "))
-                                    .marquee({duration: 5000, gap: 100, duplicated: true});
+                                    .marquee({duration: $(this).outerWidth()/0.2, gap: 100, duplicated: true});
                                     break;
                             }
                         });
