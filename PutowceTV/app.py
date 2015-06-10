@@ -60,7 +60,7 @@ def add(request, queue_name):
 		form.type.default = 'message'
 		form.type.choices = [('message', 'Message')]
 	if request.method == 'POST':
-		form = ItemForm(MultiDict([(k,v[0]) for k, v in request.args.items()]))
+		form = ItemForm(MultiDict([(k, v) for k, l in request.args.items() for v in l]))
 		if form.validate():
 			item = Item()
 			form.populate_obj(item)
@@ -71,6 +71,29 @@ def add(request, queue_name):
 			return
 	page = webapp.templates.get_template('add.html')
 	return page.render(form=form, queue=queue, form_action="/a/{}".format(queue.name))
+
+
+@webapp.route('/e/<int:item_id>', methods=['GET', 'POST'])
+def edit(request, item_id):
+	try:
+		item = Item.query.filter(Item.id==item_id).one()
+	except NoResultFound:
+		raise NotFound("No matching item has been found")
+	queue = item.queue
+	form = ItemForm(None, item)
+	if queue.text_only:
+		form.type.default = 'message'
+		form.type.choices = [('message', 'Message')]
+	if request.method == 'POST':
+		form = ItemForm(MultiDict([(k,v[0]) for k, v in request.args.items()]), item)
+		if form.validate():
+			form.populate_obj(item)
+			db_session.commit()
+			wamp_app.session.publish('tv.putowce.update', retrieve())
+			request.redirect("/q/{}".format(queue.name))
+			return
+	page = webapp.templates.get_template('add.html')
+	return page.render(form=form, queue=queue, form_action="/e/{}".format(item_id))
 
 
 @webapp.route('/d/<int:item_id>', methods=['GET', 'POST'])

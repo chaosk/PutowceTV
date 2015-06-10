@@ -1,25 +1,34 @@
 {% extends "base.html" %}
 {% import '_form.html' as macros %}
 {% block content %}
-    <div class="container">
-        <div class="col-md-4 col-sm-4 col-sm-offset-4 col-md-offset-4 col-lg-3 col-lg-offset-4">
+    <div class="row">
+        <div class="col-md-6 col-md-offset-3">
+            <h3>Dodawanie elementu do kolejki &quot;{{ queue.display_name }}&quot;</h3>
             {% call macros.render_form(form, action_url=form_action, action_text='Submit',
                                         class_='form-horizontal') %}
                 {% if not queue.text_only %}
-                {{ macros.render_field(form.type, placeholder='Type') }}
+                {{ macros.render_field(form.type, placeholder='Typ') }}
                 {% else %}
                 <input type="hidden" name="type" value="message">
                 {% endif %}
-                {{ macros.render_field(form.message, placeholder='Message') }}
-                {{ macros.render_field(form.url, placeholder='URL') }}
+                {{ macros.render_field(form.message, placeholder='Wiadomość') }}
                 {% if not queue.text_only %}
+                {{ macros.render_field(form.url, placeholder='URL') }}
                 {{ macros.render_field(form.display_time, placeholder='20') }}
                 {% endif %}
                 {{ macros.render_field(form.valid_since, type='datetime-local') }}
                 {{ macros.render_field(form.valid_until, type='datetime-local') }}
                 {{ macros.render_field(form.display_after, type='time') }}
                 {{ macros.render_field(form.display_before, type='time') }}
-
+                <div class="form-group">                
+                    <label for="week_days" class="control-label col-sm-3"><label for="week_days">Dni tygodnia</label></label>
+                    <div class="col-sm-9">
+                    {% for day, name in form.week_days.choices %}
+                        <label class="checkbox-inline" for="week_days-{{ loop.index0 }}"><input id="week_days-{{ loop.index0 }}" name="week_days" type="checkbox" value="{{ day }}"{% if form.week_days.data and day in form.week_days.data %} checked="checked"{% endif %}> {{ name }}</label>
+                    {% endfor %}
+                        <span class="help-block">Pozostawienie wszystkich pól pustych oznacza wyświetlanie przez cały tydzień</span>
+                    </div>
+                </div>
             {% endcall %}
         </div>
     </div>
