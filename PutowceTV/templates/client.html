@@ -32,7 +32,7 @@
         <div class="container">
 
             <div class="starter-template">
-                <div id="myCarousel" class="carousel " data-ride="carousel">
+                <div id="myCarousel" class="carousel">
                     <!-- Indicators -->
                     <div class="carousel-inner" role="listbox">
 
@@ -131,10 +131,10 @@
                                     $('.marquee').html(data.join(" &bull; "))
                                         .marquee({duration: $(this).outerWidth()/0.2, gap: 100, duplicated: true});
                                     break;
-                                    case 'main_queue':
+                                case 'main_queue':
                                     queue.items.forEach(function(item){
                                         console.log(item);
-                                        display_time = (item.display_time||20)*100;
+                                        display_time = (item.display_time)*1000;
                                         switch(item.type){
                                             case 'image':
                                                 $('.carousel-inner').append('<div class="item" data-interval="' + display_time + '"> <img class="second-slide" src=' + item.url +'>   </div>');
@@ -151,16 +151,30 @@
                             }
                         });
                     };
-                        function on_update(args) {
-                            update(args[0]);
-                        }
+                    function on_update(args) {
+                        update(args[0]);
+                    }
 
-                        session.subscribe('tv.putowce.update', on_update);
-                    };
+                    session.subscribe('tv.putowce.update', on_update);
+                };
 
-                    connection.open();
+                connection.open();
 
             });
+
+            var t;
+
+            var start = $('#myCarousel').find('.active').attr('data-interval');
+            t = setTimeout("$('#myCarousel').carousel({interval: 1000});", start-1000);
+
+            $('#myCarousel').on('slid.bs.carousel', function () {   
+                clearTimeout(t);  
+                var duration = $(this).find('.active').attr('data-interval');
+
+                $('#myCarousel').carousel('pause');
+                t = setTimeout("$('#myCarousel').carousel();", duration-1000);
+            })
+
         </script>
     </body>
 </html>
