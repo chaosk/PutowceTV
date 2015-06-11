@@ -16,6 +16,8 @@
 
         <!-- Custom styles for this template -->
         <link href="/static/css/client.css" rel="stylesheet">
+        <link href="/static/css/carousel.css" rel="stylesheet">
+
     </head>
 
     <body>
@@ -30,7 +32,19 @@
         <div class="container">
 
             <div class="starter-template">
-                tudynks
+                <div id="myCarousel" class="carousel " data-ride="carousel">
+                    <!-- Indicators -->
+                    <div class="carousel-inner" role="listbox">
+
+                        <div class="item active" data-interval="3000">
+                            <img class="first-slide" src="http://www.put.poznan.pl/sites/default/files/acquia_marina_logo.png" alt="First slide">    
+                            <div class="container">
+                                <div class="carousel-caption">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
             </div>
 
@@ -115,20 +129,36 @@
                                         data.push(item.message);
                                     });
                                     $('.marquee').html(data.join(" &bull; "))
-                                    .marquee({duration: $(this).outerWidth()/0.2, gap: 100, duplicated: true});
+                                        .marquee({duration: $(this).outerWidth()/0.2, gap: 100, duplicated: true});
                                     break;
+                                    case 'main_queue':
+                                    queue.items.forEach(function(item){
+                                        console.log(item);
+                                        display_time = (item.display_time||20)*100;
+                                        switch(item.type){
+                                            case 'image':
+                                                $('.carousel-inner').append('<div class="item" data-interval="' + display_time + '"> <img class="second-slide" src=' + item.url +'>   </div>');
+                                                break;
+                                            case 'video':
+                                                $('.carousel-inner').append('<div class="item" data-interval="' + display_time + '"> <video class="second-slide" autoplay loop> <source src='+ item.url +'></div>');
+                                                break;
+                                            case 'website':
+                                                $('.carousel-inner').append('<div class="item" data-interval="' + display_time + '"> <iframe class="second-slide" src='+ item.url +'></iframe></div>');
+                                                break; 
+                                        }
+                                    });
+                                    $('.carousel').carousel({pause:'false'});
                             }
                         });
-                    }
+                    };
+                        function on_update(args) {
+                            update(args[0]);
+                        }
 
-                    function on_update(args) {
-                        update(args[0]);
-                    }
+                        session.subscribe('tv.putowce.update', on_update);
+                    };
 
-                    session.subscribe('tv.putowce.update', on_update);
-                };
-
-                connection.open();
+                    connection.open();
 
             });
         </script>
