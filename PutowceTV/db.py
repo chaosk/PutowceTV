@@ -20,4 +20,3 @@ def init_db():
 		db_session.add(models.Queue(name='main_queue',
 			display_name=u'Główna kolejka'))
 		db_session.commit()
-

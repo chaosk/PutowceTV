@@ -4,3 +4,4 @@ PutowceTV/.crossbar/node.pid
 *.db
 *~
 PutowceTV/config/local.py
+venv/

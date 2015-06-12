@@ -85,7 +85,7 @@ def edit(request, item_id):
 		form.type.default = 'message'
 		form.type.choices = [('message', 'Message')]
 	if request.method == 'POST':
-		form = ItemForm(MultiDict([(k,v[0]) for k, v in request.args.items()]), item)
+		form = ItemForm(MultiDict([(k, v) for k, l in request.args.items() for v in l]), item)
 		if form.validate():
 			form.populate_obj(item)
 			db_session.commit()
@@ -131,13 +131,13 @@ def order(request, queue_name):
 	return json.dumps({'success': True})
 
 
-@webapp.route('/client/')
+@webapp.route('/client')
 def client(request):
 	page = webapp.templates.get_template('client.html')
 	return page.render(conn_data=config.AUTOBAHN_PARAMS)
 
 
-@webapp.route('/static/', branch=True)
+@webapp.route('/static', branch=True)
 def static(request):
 	return File('./static')
 
