@@ -15,40 +15,25 @@
         <link href="/static/css/bootstrap.min.css" rel="stylesheet">
 
         <!-- Custom styles for this template -->
-        <link href="/static/css/client.css" rel="stylesheet">
         <link href="/static/css/carousel.css" rel="stylesheet">
+        <link href="/static/css/client.css" rel="stylesheet">
 
     </head>
 
     <body>
-        <nav class="navbar navbar-inverse navbar-fixed-top">
-            <div class="container">
-                <div class="navbar-header">
-                    <a class="navbar-brand" href="#">PUTOWCE TV</a>
-                </div>
-            </div>
-        </nav>
+        <div class="carousel">
+            <!-- Indicators -->
+            <div class="carousel-inner" role="listbox">
 
-        <div class="container">
-
-            <div class="starter-template">
-                <div id="myCarousel" class="carousel">
-                    <!-- Indicators -->
-                    <div class="carousel-inner" role="listbox">
-
-                        <div class="item active" data-interval="3000">
-                            <img class="first-slide" src="http://www.put.poznan.pl/sites/default/files/acquia_marina_logo.png" alt="First slide">    
-                            <div class="container">
-                                <div class="carousel-caption">
-                                </div>
-                            </div>
+                <div class="item placeholder active" data-interval="0">
+                    <img class="first-slide scale" data-scale="best-fit" data-align="center" src="http://www.inzynieriakreatywnosci.put.poznan.pl/images/logoPP.jpg" alt="First slide">    
+                    <div class="container">
+                        <div class="carousel-caption">
                         </div>
                     </div>
                 </div>
-
             </div>
-
-        </div><!-- /.container -->
+        </div>
 
         <footer class="footer navbar-inverse">
             <div>
@@ -109,9 +94,11 @@
         <script src="/static/js/bootstrap.min.js"></script>
         <script src="/static/js/autobahn.min.js"></script>
         <script src="/static/js/jquery.marquee.min.js"></script>
+        <script src="/static/js/image-scale.min.js"></script>
         <script>
             $(function() {
-
+                $('img.scale').imageScale();
+                var t;
                 var connection = new autobahn.Connection({
                     url: "{{ conn_data.url }}",
                     realm: "{{ conn_data.realm }}"});
@@ -132,25 +119,29 @@
                                         .marquee({duration: $(this).outerWidth()/0.2, gap: 100, duplicated: true});
                                     break;
                                 case 'main_queue':
+                                    clearTimeout(t);
+                                    $('.carousel .item:not(.placeholder)').remove();
+                                    $('.carousel .item.placeholder').addClass('active');
                                     queue.items.forEach(function(item){
-                                        console.log(item);
                                         display_time = (item.display_time)*1000;
                                         switch(item.type){
                                             case 'image':
-                                                $('.carousel-inner').append('<div class="item" data-interval="' + display_time + '"> <img class="second-slide" src=' + item.url +'>   </div>');
+                                                $('.carousel-inner').append('<div class="item" data-interval="' + display_time + '"><img class="second-slide scale" data-scale="best-fit" data-align="center" src=' + item.url +'></div>');
                                                 break;
                                             case 'video':
-                                                $('.carousel-inner').append('<div class="item" data-interval="' + display_time + '"> <video class="second-slide" autoplay loop> <source src='+ item.url +'></div>');
+                                                $('.carousel-inner').append('<div class="item" data-interval="' + display_time + '" data-type="video"><video class="second-slide" loop><source src='+ item.url +'></div>');
                                                 break;
                                             case 'website':
-                                                $('.carousel-inner').append('<div class="item" data-interval="' + display_time + '"> <iframe class="second-slide" src='+ item.url +'></iframe></div>');
+                                                $('.carousel-inner').append('<div class="item" data-interval="' + display_time + '"><iframe class="second-slide" seamless="seamless" scrolling="no" src='+ item.url +'></iframe></div>');
                                                 break; 
                                         }
                                     });
-                                    $('.carousel').carousel({pause:'false'});
+                                    $('.carousel').carousel({pause:'false', interval: false});
+                                    $('.carousel').carousel('next');
                             }
                         });
                     };
+
                     function on_update(args) {
                         update(args[0]);
                     }
@@ -162,19 +153,29 @@
 
             });
 
-            var t;
+            function slide_to_next(current) {
+                console.log("Sliding to next now");
+                $('.carousel').carousel('next');
+                if ($(current).attr('data-type') == 'video') {
+                    $(current).children('video').get(0).pause();
+                    $(current).children('video').get(0).currentTime = 0;
+                }
+            };
 
-            var start = $('#myCarousel').find('.active').attr('data-interval');
-            t = setTimeout("$('#myCarousel').carousel({interval: 1000});", start-1000);
-
-            $('#myCarousel').on('slid.bs.carousel', function () {   
-                clearTimeout(t);  
+            $('.carousel').on('slid.bs.carousel', function (e) {
                 var duration = $(this).find('.active').attr('data-interval');
-
-                $('#myCarousel').carousel('pause');
-                t = setTimeout("$('#myCarousel').carousel();", duration-1000);
+                console.log(e)
+                if ($(e.relatedTarget).attr('data-type') == 'video') {
+                    $(e.relatedTarget).children('video').get(0).play();
+                }
+                if (!duration) {
+                    duration = 10000;
+                }
+                $('.carousel').carousel('pause');
+                console.log("Sliding in " + duration/1000 + " seconds");
+                t = setTimeout(function(){slide_to_next(e.relatedTarget)}, duration);
+                $('img.scale').imageScale();
             })
-
         </script>
     </body>
 </html>
