@@ -1,5 +1,6 @@
 # -*- encoding: utf-8 -*-
 import datetime
+import time
 from sqlalchemy import Column, Integer, String, Enum, Boolean
 from sqlalchemy import Text, DateTime, Time, ForeignKey
 from sqlalchemy.orm import relationship
@@ -66,7 +67,7 @@ class Item(Base):
 		# srs?
 		data = getattr(self, field_name)
 		if type(data) == datetime.datetime:
-			data = (data.year, data.month, data.day, data.hour, data.minute, data.second)
+			data = time.mktime(data.timetuple())
 		elif type(data) == datetime.time:
 			data = (data.hour, data.minute, data.second)
 		return data

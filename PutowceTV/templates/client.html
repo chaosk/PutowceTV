@@ -96,6 +96,7 @@
         <script src="/static/js/jquery.marquee.min.js"></script>
         <script src="/static/js/image-scale.min.js"></script>
         <script>
+            var main_queue = [];
             $(function() {
                 $('img.scale').imageScale();
                 var t;
@@ -120,21 +121,26 @@
                                     break;
                                 case 'main_queue':
                                     clearTimeout(t);
+                                    main_queue = [];
                                     $('.carousel .item:not(.placeholder)').remove();
                                     $('.carousel .item.placeholder').addClass('active');
-                                    queue.items.forEach(function(item){
+                                    queue.items.forEach(function(item, index){
+                                        main_queue.push(item);
                                         display_time = (item.display_time)*1000;
+                                        tag = '<div class="item" data-interval="' + display_time + '" data-id="' + index + '" data-type="' + item.type + '">';
                                         switch(item.type){
                                             case 'image':
-                                                $('.carousel-inner').append('<div class="item" data-interval="' + display_time + '"><img class="second-slide scale" data-scale="best-fit" data-align="center" src=' + item.url +'></div>');
+                                                tag += '<img class="second-slide scale" data-scale="best-fit" data-align="center" src=' + item.url +'>';
                                                 break;
                                             case 'video':
-                                                $('.carousel-inner').append('<div class="item" data-interval="' + display_time + '" data-type="video"><video class="second-slide" loop><source src='+ item.url +'></div>');
+                                                tag += '<video class="second-slide" loop><source src='+ item.url +'></div>';
                                                 break;
                                             case 'website':
-                                                $('.carousel-inner').append('<div class="item" data-interval="' + display_time + '"><iframe class="second-slide" seamless="seamless" scrolling="no" src='+ item.url +'></iframe></div>');
+                                                tag += '<iframe class="second-slide" seamless="seamless" scrolling="no" src='+ item.url +'></iframe></div>';
                                                 break; 
                                         }
+                                        tag += '</div>';
+                                        $('.carousel-inner').append(tag);
                                     });
                                     $('.carousel').carousel({pause:'false', interval: false});
                                     $('.carousel').carousel('next');
@@ -154,8 +160,50 @@
             });
 
             function slide_to_next(current) {
-                console.log("Sliding to next now");
-                $('.carousel').carousel('next');
+                var found = false,
+                    candidate = current;
+                while (!found) {
+                    candidate = $(candidate).next();
+                    if (!candidate.length) {
+                        candidate = $('.item:not(.placeholder)').first()
+                    }
+                    id = parseInt($(candidate).attr('data-id'));
+                    if (candidate.attr('data-id') == $(current).attr('data-id')) {
+                        break;
+                    }
+                    cdata = main_queue[id];
+                    now = new Date();
+                    if (cdata.display_after && cdata.display_before) {
+                        time = [now.getHours(), now.getMinutes(), now.getSeconds()];
+                        if (cdata.display_after[0] > time[0] || time[0] > cdata.display_before[0] || cdata.display_after[1] > time[1] || time[1] > cdata.display_before[1] || cdata.display_after[2] > time[2] || time[2] > cdata.display_before[2]) {
+                            console.log('[id=' + id + '] display_before/after');
+                            continue;
+                        }
+                    }
+                    if (cdata.valid_since && cdata.valid_since*1000 > now) {
+                        console.log('[id=' + id + '] valid_since > now');
+                        continue;
+                    }
+                    if (cdata.valid_until && cdata.valid_until*1000 < now) {
+                        console.log('[id=' + id + '] valid_until < now');
+                        continue;
+                    }
+                    if (cdata.week_days_bits) {
+                        d = now.getDay() ? now.getDay() : 7;
+                        if (!(cdata.week_days_bits & Math.pow(2, 7 - d))) {
+                            console.log('[id=' + id + '] now.day not in week_days');
+                            continue;
+                        }
+                    }
+                    found = true;
+                }
+                if (found) {
+                    console.log("Sliding to id=" + id);
+                    $('.carousel').carousel(id+1);
+                } else {
+                    console.log("No proper slide to show. Falling back to placeholder");
+                    $('.carousel').carousel(0);
+                }
                 if ($(current).attr('data-type') == 'video') {
                     $(current).children('video').get(0).pause();
                     $(current).children('video').get(0).currentTime = 0;
@@ -164,11 +212,12 @@
 
             $('.carousel').on('slid.bs.carousel', function (e) {
                 var duration = $(this).find('.active').attr('data-interval');
-                console.log(e)
                 if ($(e.relatedTarget).attr('data-type') == 'video') {
                     $(e.relatedTarget).children('video').get(0).play();
                 }
-                if (!duration) {
+                if ($(e.relatedTarget).hasClass('placeholder')) {
+                    duration = 60*1000;
+                } else if (!duration) {
                     duration = 10000;
                 }
                 $('.carousel').carousel('pause');
