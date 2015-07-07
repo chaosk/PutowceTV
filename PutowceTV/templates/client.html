@@ -99,7 +99,7 @@
             var main_queue = [];
             $(function() {
                 $('img.scale').imageScale();
-                var t;
+                var timeout;
                 var connection = new autobahn.Connection({
                     url: "{{ conn_data.url }}",
                     realm: "{{ conn_data.realm }}"});
@@ -120,7 +120,7 @@
                                         .marquee({duration: $(this).outerWidth()/0.2, gap: 100, duplicated: true});
                                     break;
                                 case 'main_queue':
-                                    clearTimeout(t);
+                                    clearTimeout(timeout);
                                     main_queue = [];
                                     $('.carousel .item:not(.placeholder)').remove();
                                     $('.carousel .item.placeholder').addClass('active');
@@ -160,18 +160,15 @@
             });
 
             function compare_timetuples(left, right) {
-                zipped = left.map(function(e, i) {
-                    return [left[i], right[i]];
-                }) 
-                for (i = 0, l = zipped.length; i < l; i++) {
-                    t = zipped[i][1] - zipped[i][0];
-                    if (t === 0) {
+                for (i = 0, l = left.length; i < l; i++) {
+                    temp = left[i] > right[i] ? 1 : left[i] < right[i] ? -1 : 0;
+                    if (temp === 0) {
                         continue;
                     } else {
-                        return t / (-t);
+                        break;
                     }
                 }
-                return t;
+                return temp;
             }
 
             function slide_to_next(current) {
@@ -183,22 +180,19 @@
                         candidate = $('.item:not(.placeholder)').first()
                     }
                     id = parseInt($(candidate).attr('data-id'));
-                    if (candidate.attr('data-id') == $(current).attr('data-id')) {
-                        break;
-                    }
                     cdata = main_queue[id];
                     now = new Date();
                     time = [now.getHours(), now.getMinutes(), now.getSeconds()];
-                    if (cdata.display_after && cdata.display_before && (compare_timetuples(cdata.display_after, now) != 1 ||compare_timetuples(now, cdata.display_before) != -1)) {
+                    if (cdata.display_after && cdata.display_before && (compare_timetuples(cdata.display_after, time) != -1 ||compare_timetuples(time, cdata.display_before) != -1)) {
                         console.log('[id=' + id + '] display_before/after');
                         continue;
                     }
                     time = [now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), now.getMinutes(), now.getSeconds()];
-                    if (cdata.valid_since && compare_timetuples(cdata.valid_since, now) != 1) {
+                    if (cdata.valid_since && compare_timetuples(cdata.valid_since, time) != -1) {
                         console.log('[id=' + id + '] !valid_since');
                         continue;
                     }
-                    if (cdata.valid_until && compare_timetuples(now, cdata.valid_until) != -1) {
+                    if (cdata.valid_until && compare_timetuples(time, cdata.valid_until) != -1) {
                         console.log('[id=' + id + '] !valid_until');
                         continue;
                     }
@@ -207,6 +201,9 @@
                         continue;
                     }
                     found = true;
+                    if (candidate.attr('data-id') == $(current).attr('data-id')) {
+                        break;
+                    }
                 }
                 if (found) {
                     console.log("Sliding to id=" + id);
@@ -233,7 +230,7 @@
                 }
                 $('.carousel').carousel('pause');
                 console.log("Sliding in " + duration/1000 + " seconds");
-                t = setTimeout(function(){slide_to_next(e.relatedTarget)}, duration);
+                timeout = setTimeout(function(){slide_to_next(e.relatedTarget)}, duration);
                 $('img.scale').imageScale();
             })
         </script>
