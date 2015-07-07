@@ -54,11 +54,13 @@ def start(child):
 	if running(child):
 		logger.warning("{} is already running.".format(child['name']))
 		return
-
+	devnull = open('/dev/null', 'w')
 	subprocess.Popen(
 		shlex.split(child['start']),
 		close_fds=True,
-		cwd=child.get('cwd', None)
+		cwd=child.get('cwd', None),
+		stdout=devnull,
+		stderr=devnull
 	)
 
 
@@ -68,10 +70,13 @@ def stop(child):
 		logger.warning("{} is already not running".format(child['name']))
 		return
 	if 'stop' in child:
+		devnull = open('/dev/null', 'w')
 		subprocess.Popen(
 			shlex.split(child['stop']),
 			close_fds=True,
-			cwd=child.get('cwd', None)
+			cwd=child.get('cwd', None),
+	                stdout=devnull,
+			stderr=devnull
 		)
 	else:
 		try:

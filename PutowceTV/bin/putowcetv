@@ -1,5 +1,5 @@
 #!/bin/bash
 
 . ../../venv/bin/activate
-python putowce.py "$@"
-. ../../venv/bin/deactivate
+python putowcetv.py "$@"
+deactivate
