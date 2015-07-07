@@ -159,6 +159,21 @@
 
             });
 
+            function compare_timetuples(left, right) {
+                zipped = left.map(function(e, i) {
+                    return [left[i], right[i]];
+                }) 
+                for (i = 0, l = zipped.length; i < l; i++) {
+                    t = zipped[i][1] - zipped[i][0];
+                    if (t === 0) {
+                        continue;
+                    } else {
+                        return t / (-t);
+                    }
+                }
+                return t;
+            }
+
             function slide_to_next(current) {
                 var found = false,
                     candidate = current;
@@ -175,22 +190,28 @@
                     now = new Date();
                     if (cdata.display_after && cdata.display_before) {
                         time = [now.getHours(), now.getMinutes(), now.getSeconds()];
-                        if (cdata.display_after[0] > time[0] || time[0] > cdata.display_before[0] || cdata.display_after[1] > time[1] || time[1] > cdata.display_before[1] || cdata.display_after[2] > time[2] || time[2] > cdata.display_before[2]) {
+                        if (compare_timetuples(cdata.display_after, now) != 1 ||
+                            compare_timetuples(now, cdata.display_before) != -1) {
                             console.log('[id=' + id + '] display_before/after');
                             continue;
                         }
                     }
-                    if (cdata.valid_since && cdata.valid_since*1000 > now) {
-                        console.log('[id=' + id + '] valid_since > now');
-                        continue;
+                    time = [now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), now.getMinutes(), now.getSeconds()];
+                    if (cdata.valid_since) {
+                        if (compare_timetuples(cdata.valid_since, now) != 1) {
+                            console.log('[id=' + id + '] !valid_since');
+                            continue;
+                        }
                     }
-                    if (cdata.valid_until && cdata.valid_until*1000 < now) {
-                        console.log('[id=' + id + '] valid_until < now');
-                        continue;
+                    if (cdata.valid_until) {
+                        if (compare_timetuples(now, cdata.valid_until) != -1) {
+                            console.log('[id=' + id + '] !valid_until');
+                            continue;
+                        }
                     }
                     if (cdata.week_days_bits) {
                         d = now.getDay() ? now.getDay() : 7;
-                        if (!(cdata.week_days_bits & Math.pow(2, 7 - d))) {
+                        if (!(cdata.week_days_bits & (1 << (7 - d)))) {
                             console.log('[id=' + id + '] now.day not in week_days');
                             continue;
                         }

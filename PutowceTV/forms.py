@@ -30,7 +30,7 @@ class ItemForm(Form):
 		('video', 'Plik video'), ('website', 'Strona internetowa')])
 	message = SafeStringField(u'Wiadomość')
 	url = SafeStringField('Adres URL')
-	display_time = IntegerField('Display time', validators=[validators.optional()])
+	display_time = IntegerField('Display time', validators=[validators.optional()], default=20)
 	valid_since = DateTimeField('Valid since', format=date_format,
 		validators=[validators.optional()])
 	valid_until = DateTimeField('Valid until', format=date_format,
